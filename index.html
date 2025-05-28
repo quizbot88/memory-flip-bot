@@ -1,87 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Memory Flip</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-      background: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    h1 {
-      margin-top: 20px;
-    }
-    .game-board {
-      display: grid;
-      grid-template-columns: repeat(4, 80px);
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .card {
-      width: 80px;
-      height: 80px;
-      background-color: #fff;
-      border-radius: 8px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 32px;
-      cursor: pointer;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-      user-select: none;
-    }
-    .card.flipped {
-      background-color: #4caf50;
-      color: #fff;
-    }
-  </style>
-</head>
-<body>
-  <h1>Memory Flip</h1>
-  <div class="game-board" id="board"></div>
+// memory-flip-game.js (Telegram Mini App)
+// Простая логика Memory Flip игры с пулом из 3 игроков и токенами
 
-  <script>
-    const emojis = ['🍎','🍌','🍇','🍉','🍓','🍒','🍍','🥝'];
-    const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+const gameState = {
+  players: [],
+  tokens: {},
+  roundStarted: false,
+  cards: [],
+  matchedPairs: 0,
+  startTime: null,
+};
 
-    const board = document.getElementById('board');
-    let flippedCards = [];
+function initGame() {
+  gameState.players = [];
+  gameState.tokens = {};
+  gameState.cards = shuffleCards(generateCardPairs());
+  gameState.roundStarted = false;
+  gameState.matchedPairs = 0;
+  gameState.startTime = null;
+}
 
-    cards.forEach((emoji, index) => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.dataset.index = index;
-      card.dataset.emoji = emoji;
-      card.addEventListener('click', () => {
-        if (card.classList.contains('flipped') || flippedCards.length === 2) return;
+function addPlayer(playerId) {
+  if (gameState.players.length < 3 && !gameState.players.includes(playerId)) {
+    gameState.players.push(playerId);
+    gameState.tokens[playerId] = 3;
+  }
+  if (gameState.players.length === 3) startRound();
+}
 
-        card.classList.add('flipped');
-        card.textContent = emoji;
-        flippedCards.push(card);
+function startRound() {
+  gameState.roundStarted = true;
+  gameState.startTime = Date.now();
+  gameState.players.forEach(pid => {
+    gameState.tokens[pid]--;
+  });
+}
 
-        if (flippedCards.length === 2) {
-          const [a, b] = flippedCards;
-          if (a.dataset.emoji !== b.dataset.emoji) {
-            setTimeout(() => {
-              a.classList.remove('flipped');
-              b.classList.remove('flipped');
-              a.textContent = '';
-              b.textContent = '';
-              flippedCards = [];
-            }, 800);
-          } else {
-            flippedCards = [];
-          }
-        }
-      });
-      board.appendChild(card);
-    });
-  </script>
-</body>
-</html>
+function generateCardPairs() {
+  const values = ['A', 'B', 'C', 'D', 'E', 'F'];
+  return [...values, ...values];
+}
+
+function shuffleCards(cards) {
+  return cards.sort(() => Math.random() - 0.5);
+}
+
+function flipCard(playerId, index) {
+  // Логика переворота и сопоставления карт
+  // Упрощенно: каждый игрок просто находит пару
+  gameState.matchedPairs++;
+  if (gameState.matchedPairs === 6) endRound();
+}
+
+function endRound() {
+  const elapsedTime = (Date.now() - gameState.startTime) / 1000;
+  const winner = gameState.players[Math.floor(Math.random() * 3)];
+  gameState.tokens[winner] += 3;
+  console.log(`Победитель: ${winner}, Время: ${elapsedTime} секунд`);
+  initGame();
+}
+
+// Пример использования (в реальном проекте привязывается к Telegram WebApp):
+initGame();
+addPlayer('player1');
+addPlayer('player2');
+addPlayer('player3');
+// Игроки делают ходы
+flipCard('player1', 0);
+flipCard('player2', 1);
+flipCard('player3', 2);
