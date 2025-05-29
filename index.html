@@ -1,71 +1,122 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
-
-const cards = [
-  { id: 1, icon: "🍒" },
-  { id: 2, icon: "🍒" },
-  { id: 3, icon: "🍋" },
-  { id: 4, icon: "🍋" },
-  { id: 5, icon: "🍇" },
-  { id: 6, icon: "🍇" },
-];
-
-export default function MemoryFlipGame() {
-  const [flipped, setFlipped] = React.useState([]);
-  const [matched, setMatched] = React.useState([]);
-
-  const handleFlip = (id) => {
-    if (flipped.length === 2 || flipped.includes(id)) return;
-    const newFlipped = [...flipped, id];
-    setFlipped(newFlipped);
-
-    if (newFlipped.length === 2) {
-      const [first, second] = newFlipped;
-      const firstCard = cards.find((c) => c.id === first);
-      const secondCard = cards.find((c) => c.id === second);
-      if (firstCard.icon === secondCard.icon) {
-        setMatched([...matched, first, second]);
-      }
-      setTimeout(() => setFlipped([]), 1000);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Memory Flip</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #1e293b, #0f172a);
+      font-family: sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
     }
-  };
+    h1 {
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .card {
+      width: 100px;
+      height: 100px;
+      font-size: 2em;
+      background: #334155;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.3s;
+    }
+    .flipped {
+      background: #475569;
+    }
+    button {
+      padding: 10px 20px;
+      background: #3b82f6;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-white p-4">
-      <div className="max-w-md mx-auto text-center">
-        <h1 className="text-3xl font-bold mb-4">Memory Flip</h1>
-        <div className="grid grid-cols-3 gap-4">
-          {cards.map((card) => {
-            const isFlipped = flipped.includes(card.id) || matched.includes(card.id);
-            return (
-              <motion.div
-                key={card.id}
-                whileTap={{ scale: 0.9 }}
-                className="aspect-square"
-              >
-                <Card
-                  className="cursor-pointer h-full"
-                  onClick={() => handleFlip(card.id)}
-                >
-                  <CardContent className="flex items-center justify-center h-full text-4xl">
-                    {isFlipped ? card.icon : "❓"}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
-        <div className="mt-6">
-          <Button onClick={() => {
-            setFlipped([]);
-            setMatched([]);
-          }}>
-            Restart
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
+  <h1>🎮 Memory Flip</h1>
+  <div class="grid" id="gameGrid"></div>
+  <button onclick="restartGame()">🔄 Restart</button>
+
+  <script>
+    const icons = ['🍒', '🍋', '🍇'];
+    let cards = [];
+    let flipped = [];
+    let matched = [];
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function createCards() {
+      const pairIcons = [...icons, ...icons]; // дублируем
+      const shuffled = shuffle(pairIcons.map((icon, i) => ({ id: i, icon })));
+      cards = shuffled;
+    }
+
+    function drawGrid() {
+      const grid = document.getElementById('gameGrid');
+      grid.innerHTML = '';
+      cards.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        if (flipped.includes(card.id) || matched.includes(card.id)) {
+          cardDiv.classList.add('flipped');
+          cardDiv.textContent = card.icon;
+        } else {
+          cardDiv.textContent = '❓';
+        }
+        cardDiv.onclick = () => flipCard(card.id);
+        grid.appendChild(cardDiv);
+      });
+    }
+
+    function flipCard(id) {
+      if (flipped.length === 2 || flipped.includes(id)) return;
+      flipped.push(id);
+      drawGrid();
+
+      if (flipped.length === 2) {
+        const [first, second] = flipped;
+        if (cards[first].icon === cards[second].icon) {
+          matched.push(first, second);
+        }
+        setTimeout(() => {
+          flipped = [];
+          drawGrid();
+        }, 1000);
+      }
+    }
+
+    function restartGame() {
+      flipped = [];
+      matched = [];
+      createCards();
+      drawGrid();
+    }
+
+    // Старт игры
+    restartGame();
+  </script>
+</body>
+</html>
