@@ -1,158 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Memory Flip - KitCoin Edition</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #1a1a1a;
-      color: #fff;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      margin-bottom: 10px;
-    }
-    #game, #wallet {
-      display: none;
-    }
-    .card {
-      display: inline-block;
-      width: 60px;
-      height: 60px;
-      margin: 10px;
-      background: #444;
-      color: #fff;
-      line-height: 60px;
-      font-size: 24px;
-      cursor: pointer;
-    }
-    #controls button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    #players, #kitcoins {
-      margin: 15px 0;
-      font-size: 18px;
-    }
-  </style>
-</head>
-<body>
-  <h1>Memory Flip</h1>
-  <div id="menu">
-    <div id="kitcoins">KitCoins: <span id="balance">3</span></div>
-    <button onclick="startGame()">Начать игру (1 KitCoin)</button>
-    <button onclick="openWallet()">Кошелёк</button>
-  </div>
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
 
-  <div id="wallet">
-    <h2>Кошелёк</h2>
-    <p>Баланс: <span id="walletBalance">3</span> KitCoin</p>
-    <button onclick="backToMenu()">Назад</button>
-    <button onclick="buyKitcoins()">Пополнить баланс</button>
-    <!-- Здесь будет ссылка на покупку позже -->
-  </div>
+const cards = [
+  { id: 1, icon: "🍒" },
+  { id: 2, icon: "🍒" },
+  { id: 3, icon: "🍋" },
+  { id: 4, icon: "🍋" },
+  { id: 5, icon: "🍇" },
+  { id: 6, icon: "🍇" },
+];
 
-  <div id="game">
-    <h2>Игра</h2>
-    <div id="players">Ожидание игроков: <span id="waiting">2</span>/3</div>
-    <div id="cards"></div>
-    <button onclick="backToMenu()">Завершить</button>
-  </div>
+export default function MemoryFlipGame() {
+  const [flipped, setFlipped] = React.useState([]);
+  const [matched, setMatched] = React.useState([]);
 
-  <script>
-    let balance = 3;
-    let playersInRoom = 1; // по умолчанию текущий игрок
+  const handleFlip = (id) => {
+    if (flipped.length === 2 || flipped.includes(id)) return;
+    const newFlipped = [...flipped, id];
+    setFlipped(newFlipped);
 
-    function updateDisplay() {
-      document.getElementById("balance").innerText = balance;
-      document.getElementById("walletBalance").innerText = balance;
-      document.getElementById("waiting").innerText = 3 - playersInRoom;
-    }
-
-    function startGame() {
-      if (balance < 1) {
-        alert("Недостаточно KitCoin. Пополните баланс.");
-        return;
+    if (newFlipped.length === 2) {
+      const [first, second] = newFlipped;
+      const firstCard = cards.find((c) => c.id === first);
+      const secondCard = cards.find((c) => c.id === second);
+      if (firstCard.icon === secondCard.icon) {
+        setMatched([...matched, first, second]);
       }
-      balance--;
-      updateDisplay();
-      document.getElementById("menu").style.display = "none";
-      document.getElementById("game").style.display = "block";
-      simulatePlayersJoining();
+      setTimeout(() => setFlipped([]), 1000);
     }
+  };
 
-    function openWallet() {
-      document.getElementById("menu").style.display = "none";
-      document.getElementById("wallet").style.display = "block";
-    }
-
-    function backToMenu() {
-      document.getElementById("menu").style.display = "block";
-      document.getElementById("wallet").style.display = "none";
-      document.getElementById("game").style.display = "none";
-      playersInRoom = 1;
-      updateDisplay();
-    }
-
-    function buyKitcoins() {
-      alert("Функция покупки KitCoin скоро будет доступна.");
-    }
-
-    function simulatePlayersJoining() {
-      const interval = setInterval(() => {
-        if (playersInRoom < 3) {
-          playersInRoom++;
-          updateDisplay();
-        } else {
-          clearInterval(interval);
-          alert("Все игроки присоединились! Игра начинается...");
-          startFlipGame();
-        }
-      }, 1500);
-    }
-
-    function startFlipGame() {
-      const cards = document.getElementById("cards");
-      cards.innerHTML = "";
-      const values = ["A", "B", "A", "B"];
-      values.sort(() => Math.random() - 0.5);
-      values.forEach(val => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.dataset.value = val;
-        card.innerText = "?";
-        card.onclick = flipCard;
-        cards.appendChild(card);
-      });
-    }
-
-    let flipped = [];
-    function flipCard() {
-      if (flipped.length >= 2 || this.innerText !== "?") return;
-      this.innerText = this.dataset.value;
-      flipped.push(this);
-      if (flipped.length === 2) {
-        setTimeout(() => {
-          if (flipped[0].dataset.value !== flipped[1].dataset.value) {
-            flipped[0].innerText = "?";
-            flipped[1].innerText = "?";
-          } else {
-            balance += 3; // Победитель получает 3 KitCoin
-            alert("Пара найдена! +3 KitCoin!");
-            updateDisplay();
-          }
-          flipped = [];
-        }, 1000);
-      }
-    }
-
-    updateDisplay();
-  </script>
-</body>
-</html>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-white p-4">
+      <div className="max-w-md mx-auto text-center">
+        <h1 className="text-3xl font-bold mb-4">Memory Flip</h1>
+        <div className="grid grid-cols-3 gap-4">
+          {cards.map((card) => {
+            const isFlipped = flipped.includes(card.id) || matched.includes(card.id);
+            return (
+              <motion.div
+                key={card.id}
+                whileTap={{ scale: 0.9 }}
+                className="aspect-square"
+              >
+                <Card
+                  className="cursor-pointer h-full"
+                  onClick={() => handleFlip(card.id)}
+                >
+                  <CardContent className="flex items-center justify-center h-full text-4xl">
+                    {isFlipped ? card.icon : "❓"}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
+        <div className="mt-6">
+          <Button onClick={() => {
+            setFlipped([]);
+            setMatched([]);
+          }}>
+            Restart
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
