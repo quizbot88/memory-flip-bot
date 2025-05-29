@@ -1,70 +1,158 @@
-// memory-flip-game.js (Telegram Mini App)
-// Простая логика Memory Flip игры с пулом из 3 игроков и токенами
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory Flip - KitCoin Edition</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #game, #wallet {
+      display: none;
+    }
+    .card {
+      display: inline-block;
+      width: 60px;
+      height: 60px;
+      margin: 10px;
+      background: #444;
+      color: #fff;
+      line-height: 60px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    #controls button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #players, #kitcoins {
+      margin: 15px 0;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Flip</h1>
+  <div id="menu">
+    <div id="kitcoins">KitCoins: <span id="balance">3</span></div>
+    <button onclick="startGame()">Начать игру (1 KitCoin)</button>
+    <button onclick="openWallet()">Кошелёк</button>
+  </div>
 
-const gameState = {
-  players: [],
-  tokens: {},
-  roundStarted: false,
-  cards: [],
-  matchedPairs: 0,
-  startTime: null,
-};
+  <div id="wallet">
+    <h2>Кошелёк</h2>
+    <p>Баланс: <span id="walletBalance">3</span> KitCoin</p>
+    <button onclick="backToMenu()">Назад</button>
+    <button onclick="buyKitcoins()">Пополнить баланс</button>
+    <!-- Здесь будет ссылка на покупку позже -->
+  </div>
 
-function initGame() {
-  gameState.players = [];
-  gameState.tokens = {};
-  gameState.cards = shuffleCards(generateCardPairs());
-  gameState.roundStarted = false;
-  gameState.matchedPairs = 0;
-  gameState.startTime = null;
-}
+  <div id="game">
+    <h2>Игра</h2>
+    <div id="players">Ожидание игроков: <span id="waiting">2</span>/3</div>
+    <div id="cards"></div>
+    <button onclick="backToMenu()">Завершить</button>
+  </div>
 
-function addPlayer(playerId) {
-  if (gameState.players.length < 3 && !gameState.players.includes(playerId)) {
-    gameState.players.push(playerId);
-    gameState.tokens[playerId] = 3;
-  }
-  if (gameState.players.length === 3) startRound();
-}
+  <script>
+    let balance = 3;
+    let playersInRoom = 1; // по умолчанию текущий игрок
 
-function startRound() {
-  gameState.roundStarted = true;
-  gameState.startTime = Date.now();
-  gameState.players.forEach(pid => {
-    gameState.tokens[pid]--;
-  });
-}
+    function updateDisplay() {
+      document.getElementById("balance").innerText = balance;
+      document.getElementById("walletBalance").innerText = balance;
+      document.getElementById("waiting").innerText = 3 - playersInRoom;
+    }
 
-function generateCardPairs() {
-  const values = ['A', 'B', 'C', 'D', 'E', 'F'];
-  return [...values, ...values];
-}
+    function startGame() {
+      if (balance < 1) {
+        alert("Недостаточно KitCoin. Пополните баланс.");
+        return;
+      }
+      balance--;
+      updateDisplay();
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("game").style.display = "block";
+      simulatePlayersJoining();
+    }
 
-function shuffleCards(cards) {
-  return cards.sort(() => Math.random() - 0.5);
-}
+    function openWallet() {
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("wallet").style.display = "block";
+    }
 
-function flipCard(playerId, index) {
-  // Логика переворота и сопоставления карт
-  // Упрощенно: каждый игрок просто находит пару
-  gameState.matchedPairs++;
-  if (gameState.matchedPairs === 6) endRound();
-}
+    function backToMenu() {
+      document.getElementById("menu").style.display = "block";
+      document.getElementById("wallet").style.display = "none";
+      document.getElementById("game").style.display = "none";
+      playersInRoom = 1;
+      updateDisplay();
+    }
 
-function endRound() {
-  const elapsedTime = (Date.now() - gameState.startTime) / 1000;
-  const winner = gameState.players[Math.floor(Math.random() * 3)];
-  gameState.tokens[winner] += 3;
-  console.log(`Победитель: ${winner}, Время: ${elapsedTime} секунд`);
-  initGame();
-}
+    function buyKitcoins() {
+      alert("Функция покупки KitCoin скоро будет доступна.");
+    }
 
-// Пример использования (в реальном проекте привязывается к Telegram WebApp):
-initGame();
-addPlayer('player1');
-addPlayer('player2');
-addPlayer('player3');
-// Игроки делают ходы
-flipCard('player1', 0);
-flipCard('player2', 1);
-flipCard('player3', 2);
+    function simulatePlayersJoining() {
+      const interval = setInterval(() => {
+        if (playersInRoom < 3) {
+          playersInRoom++;
+          updateDisplay();
+        } else {
+          clearInterval(interval);
+          alert("Все игроки присоединились! Игра начинается...");
+          startFlipGame();
+        }
+      }, 1500);
+    }
+
+    function startFlipGame() {
+      const cards = document.getElementById("cards");
+      cards.innerHTML = "";
+      const values = ["A", "B", "A", "B"];
+      values.sort(() => Math.random() - 0.5);
+      values.forEach(val => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.value = val;
+        card.innerText = "?";
+        card.onclick = flipCard;
+        cards.appendChild(card);
+      });
+    }
+
+    let flipped = [];
+    function flipCard() {
+      if (flipped.length >= 2 || this.innerText !== "?") return;
+      this.innerText = this.dataset.value;
+      flipped.push(this);
+      if (flipped.length === 2) {
+        setTimeout(() => {
+          if (flipped[0].dataset.value !== flipped[1].dataset.value) {
+            flipped[0].innerText = "?";
+            flipped[1].innerText = "?";
+          } else {
+            balance += 3; // Победитель получает 3 KitCoin
+            alert("Пара найдена! +3 KitCoin!");
+            updateDisplay();
+          }
+          flipped = [];
+        }, 1000);
+      }
+    }
+
+    updateDisplay();
+  </script>
+</body>
+</html>
