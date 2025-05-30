@@ -1,84 +1,186 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { Coins } from "lucide-react";
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DUEL // 3 ZONES</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0f0f0f;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    h1 {
+      margin-top: 20px;
+      font-size: 28px;
+      color: #00ffcc;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #ffffff;
+    }
+    .health {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    .zone-row {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .zone {
+      width: 80px;
+      height: 80px;
+      margin: 0 10px;
+      border: 2px solid #00ffcc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a1a;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      border-radius: 10px;
+      font-size: 24px;
+    }
+    .zone:hover {
+      background: #333;
+      transform: scale(1.05);
+    }
+    .selected {
+      border-color: #ff00cc;
+      box-shadow: 0 0 10px #ff00cc;
+    }
+    .hit {
+      background: #ff0033 !important;
+    }
+    .miss {
+      background: #555 !important;
+    }
+    button {
+      padding: 10px 20px;
+      background: #00ffcc;
+      color: #000;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #00e6b8;
+    }
+  </style>
+</head>
+<body>
+  <h1>DUEL // 3 ZONES</h1>
+  <div class="status">Раунд 1 — Ваш ход</div>
+  <div class="health">Ваше HP: <span id="playerHP">2</span> | HP противника: <span id="enemyHP">2</span></div>
+  <h3>Выберите позицию:</h3>
+  <div class="zone-row" id="playerPositions">
+    <div class="zone" data-index="0">A</div>
+    <div class="zone" data-index="1">B</div>
+    <div class="zone" data-index="2">C</div>
+  </div>
+  <h3>Выберите цель для выстрела:</h3>
+  <div class="zone-row" id="playerShots">
+    <div class="zone" data-index="0">A</div>
+    <div class="zone" data-index="1">B</div>
+    <div class="zone" data-index="2">C</div>
+  </div>
+  <button id="confirmBtn" disabled>Подтвердить</button>
 
-const cards = [
-  { id: 1, icon: "🍒" },
-  { id: 2, icon: "🍒" },
-  { id: 3, icon: "🍋" },
-  { id: 4, icon: "🍋" },
-  { id: 5, icon: "🍇" },
-  { id: 6, icon: "🍇" },
-];
+  <script>
+    let playerPosition = null;
+    let playerShot = null;
+    let round = 1;
+    let playerHP = 2;
+    let enemyHP = 2;
 
-export default function MemoryFlipGame() {
-  const [flipped, setFlipped] = React.useState([]);
-  const [matched, setMatched] = React.useState([]);
-  const [tokens, setTokens] = React.useState(3);
-  const [gameOver, setGameOver] = React.useState(false);
+    const posZones = document.querySelectorAll("#playerPositions .zone");
+    const shotZones = document.querySelectorAll("#playerShots .zone");
+    const confirmBtn = document.getElementById("confirmBtn");
+    const status = document.querySelector(".status");
+    const playerHPText = document.getElementById("playerHP");
+    const enemyHPText = document.getElementById("enemyHP");
 
-  const handleFlip = (id) => {
-    if (flipped.length === 2 || flipped.includes(id) || gameOver) return;
+    posZones.forEach(zone => {
+      zone.addEventListener("click", () => {
+        posZones.forEach(z => z.classList.remove("selected"));
+        zone.classList.add("selected");
+        playerPosition = parseInt(zone.dataset.index);
+        checkReady();
+      });
+    });
 
-    const newFlipped = [...flipped, id];
-    setFlipped(newFlipped);
+    shotZones.forEach(zone => {
+      zone.addEventListener("click", () => {
+        shotZones.forEach(z => z.classList.remove("selected"));
+        zone.classList.add("selected");
+        playerShot = parseInt(zone.dataset.index);
+        checkReady();
+      });
+    });
 
-    if (newFlipped.length === 2) {
-      const [first, second] = newFlipped;
-      const firstCard = cards.find((c) => c.id === first);
-      const secondCard = cards.find((c) => c.id === second);
-      if (firstCard.icon === secondCard.icon) {
-        setMatched([...matched, first, second]);
+    function checkReady() {
+      confirmBtn.disabled = !(playerPosition !== null && playerShot !== null);
+    }
+
+    confirmBtn.addEventListener("click", () => {
+      confirmBtn.disabled = true;
+      const enemyPosition = Math.floor(Math.random() * 3);
+      const enemyShot = Math.floor(Math.random() * 3);
+
+      // Очистка предыдущих результатов
+      posZones.forEach(z => z.classList.remove("hit", "miss"));
+      shotZones.forEach(z => z.classList.remove("hit", "miss"));
+
+      // Выстрел игрока
+      if (playerShot === enemyPosition) {
+        enemyHP--;
+        shotZones[playerShot].classList.add("hit");
+      } else {
+        shotZones[playerShot].classList.add("miss");
       }
-      setTimeout(() => setFlipped([]), 1000);
-    }
-  };
 
-  const restartGame = () => {
-    if (tokens <= 0) return;
-    setFlipped([]);
-    setMatched([]);
-    setGameOver(false);
-    setTokens(tokens - 1);
-  };
+      // Выстрел противника
+      if (enemyShot === playerPosition) {
+        playerHP--;
+        posZones[playerPosition].classList.add("hit");
+      } else {
+        posZones[playerPosition].classList.add("miss");
+      }
 
-  React.useEffect(() => {
-    if (matched.length === cards.length) {
-      setGameOver(true);
-      setTokens(tokens + 3); // приз за победу
-    }
-  }, [matched]);
+      // Обновление текста
+      playerHPText.textContent = playerHP;
+      enemyHPText.textContent = enemyHP;
+      round++;
+      status.textContent = `Раунд ${round} — Ваш ход`;
 
-  return (
-    <div className="flex flex-col items-center gap-6 p-6">
-      <div className="text-2xl font-bold">Memory Flip</div>
-      <div className="flex items-center gap-2 text-lg">
-        <Coins className="w-5 h-5" /> {tokens} киткоинов
-      </div>
-      <div className="grid grid-cols-3 gap-4">
-        {cards.map((card) => {
-          const isFlipped = flipped.includes(card.id) || matched.includes(card.id);
-          return (
-            <motion.div
-              key={card.id}
-              whileTap={{ scale: 0.95 }}
-              className="cursor-pointer"
-              onClick={() => handleFlip(card.id)}
-            >
-              <Card className="w-20 h-24 flex items-center justify-center text-2xl">
-                <CardContent>
-                  {isFlipped ? card.icon : "❓"}
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
-      </div>
-      <Button onClick={restartGame} disabled={tokens <= 0} className="mt-4">
-        {tokens <= 0 ? "Нет токенов" : gameOver ? "Играть снова" : "Рестарт"}
-      </Button>
-    </div>
-  );
-}
+      // Сброс выбора
+      posZones.forEach(z => z.classList.remove("selected"));
+      shotZones.forEach(z => z.classList.remove("selected"));
+      playerPosition = null;
+      playerShot = null;
+
+      if (playerHP <= 0 || enemyHP <= 0) {
+        if (playerHP <= 0 && enemyHP <= 0) {
+          status.textContent = "Ничья!";
+        } else if (playerHP <= 0) {
+          status.textContent = "Вы проиграли!";
+        } else {
+          status.textContent = "Вы выиграли $1.00!";
+        }
+        confirmBtn.disabled = true;
+      }
+    });
+  </script>
+</body>
+</html>
