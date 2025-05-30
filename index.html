@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,9 +7,11 @@
   <style>
     body {
       margin: 0;
-      background: #0f0f0f;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #e0e0e0;
+      font-family: 'Georgia', serif;
+      background: url('castle.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #f1f1f1;
+      text-shadow: 1px 1px 3px #000;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -17,18 +19,18 @@
       height: 100vh;
     }
     h1 {
-      margin-top: 20px;
-      font-size: 28px;
-      color: #00ffcc;
+      font-size: 36px;
+      color: #8cf7ff;
+      background: rgba(0,0,0,0.5);
+      padding: 10px 20px;
+      border-radius: 10px;
     }
-    .status {
-      margin-top: 10px;
-      font-size: 18px;
-      color: #ffffff;
-    }
-    .health {
+    .status, .health {
+      font-size: 20px;
       margin: 10px 0;
-      font-size: 16px;
+      background: rgba(0,0,0,0.4);
+      padding: 5px 15px;
+      border-radius: 8px;
     }
     .zone-row {
       display: flex;
@@ -39,43 +41,44 @@
       width: 80px;
       height: 80px;
       margin: 0 10px;
-      border: 2px solid #00ffcc;
+      border: 3px solid #88f7d3;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      font-size: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #1a1a1a;
       cursor: pointer;
-      transition: background 0.2s, transform 0.2s;
-      border-radius: 10px;
-      font-size: 24px;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
     .zone:hover {
-      background: #333;
       transform: scale(1.05);
+      box-shadow: 0 0 12px #88f7d3;
     }
     .selected {
-      border-color: #ff00cc;
-      box-shadow: 0 0 10px #ff00cc;
+      box-shadow: 0 0 15px #ffcc00;
+      border-color: #ffcc00;
     }
     .hit {
-      background: #ff0033 !important;
+      background: rgba(255, 0, 0, 0.6) !important;
     }
     .miss {
-      background: #555 !important;
+      background: rgba(255, 255, 255, 0.2) !important;
     }
     button {
-      padding: 10px 20px;
-      background: #00ffcc;
-      color: #000;
+      background: #ffaa00;
       border: none;
-      font-size: 16px;
+      color: #000;
+      font-weight: bold;
+      font-size: 18px;
+      padding: 10px 25px;
+      margin-top: 20px;
+      border-radius: 10px;
       cursor: pointer;
-      border-radius: 5px;
-      margin-top: 10px;
-      transition: background 0.2s;
+      transition: background 0.3s;
     }
     button:hover {
-      background: #00e6b8;
+      background: #ffcc33;
     }
   </style>
 </head>
@@ -138,11 +141,9 @@
       const enemyPosition = Math.floor(Math.random() * 3);
       const enemyShot = Math.floor(Math.random() * 3);
 
-      // Очистка предыдущих результатов
       posZones.forEach(z => z.classList.remove("hit", "miss"));
       shotZones.forEach(z => z.classList.remove("hit", "miss"));
 
-      // Выстрел игрока
       if (playerShot === enemyPosition) {
         enemyHP--;
         shotZones[playerShot].classList.add("hit");
@@ -150,7 +151,6 @@
         shotZones[playerShot].classList.add("miss");
       }
 
-      // Выстрел противника
       if (enemyShot === playerPosition) {
         playerHP--;
         posZones[playerPosition].classList.add("hit");
@@ -158,13 +158,11 @@
         posZones[playerPosition].classList.add("miss");
       }
 
-      // Обновление текста
       playerHPText.textContent = playerHP;
       enemyHPText.textContent = enemyHP;
       round++;
       status.textContent = `Раунд ${round} — Ваш ход`;
 
-      // Сброс выбора
       posZones.forEach(z => z.classList.remove("selected"));
       shotZones.forEach(z => z.classList.remove("selected"));
       playerPosition = null;
@@ -176,7 +174,7 @@
         } else if (playerHP <= 0) {
           status.textContent = "Вы проиграли!";
         } else {
-          status.textContent = "Вы выиграли $1.00!";
+          status.textContent = "Вы победили и забрали $1.00!";
         }
         confirmBtn.disabled = true;
       }
