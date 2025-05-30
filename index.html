@@ -5,180 +5,117 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DUEL // 3 ZONES</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@500&display=swap');
+
     body {
       margin: 0;
-      font-family: 'Georgia', serif;
-      background: url('castle.jpg') no-repeat center center fixed;
+      padding: 0;
+      background: url('https://i.imgur.com/D7gWytS.jpeg') no-repeat center center fixed;
       background-size: cover;
-      color: #f1f1f1;
-      text-shadow: 1px 1px 3px #000;
+      font-family: 'Unbounded', sans-serif;
+      color: #f8f8f8;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       height: 100vh;
     }
-    h1 {
-      font-size: 36px;
-      color: #8cf7ff;
-      background: rgba(0,0,0,0.5);
-      padding: 10px 20px;
-      border-radius: 10px;
-    }
-    .status, .health {
-      font-size: 20px;
-      margin: 10px 0;
-      background: rgba(0,0,0,0.4);
-      padding: 5px 15px;
-      border-radius: 8px;
-    }
-    .zone-row {
+
+    .top-bar {
+      width: 100%;
+      padding: 20px;
       display: flex;
-      justify-content: center;
-      margin: 20px 0;
-    }
-    .zone {
-      width: 80px;
-      height: 80px;
-      margin: 0 10px;
-      border: 3px solid #88f7d3;
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.4);
-      font-size: 24px;
-      display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      background: rgba(0, 0, 0, 0.6);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
-    .zone:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 12px #88f7d3;
+
+    .top-bar div {
+      margin: 0 10px;
+      font-size: 16px;
     }
-    .selected {
-      box-shadow: 0 0 15px #ffcc00;
-      border-color: #ffcc00;
+
+    .title {
+      font-size: 28px;
+      margin-top: 30px;
+      text-align: center;
+      color: #86f7d8;
+      text-shadow: 0 0 10px #000;
     }
-    .hit {
-      background: rgba(255, 0, 0, 0.6) !important;
+
+    .duel-card {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      margin: 40px 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+      text-align: center;
     }
-    .miss {
-      background: rgba(255, 255, 255, 0.2) !important;
+
+    .duel-card h2 {
+      margin-bottom: 20px;
+      color: #fff;
     }
-    button {
+
+    .button {
+      padding: 15px 40px;
       background: #ffaa00;
       border: none;
+      border-radius: 12px;
+      font-size: 18px;
       color: #000;
       font-weight: bold;
-      font-size: 18px;
-      padding: 10px 25px;
-      margin-top: 20px;
-      border-radius: 10px;
       cursor: pointer;
       transition: background 0.3s;
     }
-    button:hover {
+
+    .button:hover {
       background: #ffcc33;
+    }
+
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0, 0, 0, 0.7);
+      width: 100%;
+      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+    }
+
+    .nav-item {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .nav-item.active {
+      color: #ffaa00;
     }
   </style>
 </head>
 <body>
-  <h1>DUEL // 3 ZONES</h1>
-  <div class="status">Раунд 1 — Ваш ход</div>
-  <div class="health">Ваше HP: <span id="playerHP">2</span> | HP противника: <span id="enemyHP">2</span></div>
-  <h3>Выберите позицию:</h3>
-  <div class="zone-row" id="playerPositions">
-    <div class="zone" data-index="0">A</div>
-    <div class="zone" data-index="1">B</div>
-    <div class="zone" data-index="2">C</div>
+
+  <div class="top-bar">
+    <div>👑 slavaKubani</div>
+    <div>💎 7</div>
+    <div>💰 $0.60</div>
   </div>
-  <h3>Выберите цель для выстрела:</h3>
-  <div class="zone-row" id="playerShots">
-    <div class="zone" data-index="0">A</div>
-    <div class="zone" data-index="1">B</div>
-    <div class="zone" data-index="2">C</div>
+
+  <div class="title">DUEL // 3 ZONES</div>
+
+  <div class="duel-card">
+    <h2>⚔️ Дуэль 1 на 1</h2>
+    <p>Ставка: $0.60 — Победитель получает $1</p>
+    <button class="button" onclick="alert('Поиск соперника...')">Начать дуэль</button>
   </div>
-  <button id="confirmBtn" disabled>Подтвердить</button>
 
-  <script>
-    let playerPosition = null;
-    let playerShot = null;
-    let round = 1;
-    let playerHP = 2;
-    let enemyHP = 2;
+  <div class="bottom-nav">
+    <div class="nav-item active">Play</div>
+    <div class="nav-item">Leagues</div>
+    <div class="nav-item">Rewards</div>
+    <div class="nav-item">Profile</div>
+  </div>
 
-    const posZones = document.querySelectorAll("#playerPositions .zone");
-    const shotZones = document.querySelectorAll("#playerShots .zone");
-    const confirmBtn = document.getElementById("confirmBtn");
-    const status = document.querySelector(".status");
-    const playerHPText = document.getElementById("playerHP");
-    const enemyHPText = document.getElementById("enemyHP");
-
-    posZones.forEach(zone => {
-      zone.addEventListener("click", () => {
-        posZones.forEach(z => z.classList.remove("selected"));
-        zone.classList.add("selected");
-        playerPosition = parseInt(zone.dataset.index);
-        checkReady();
-      });
-    });
-
-    shotZones.forEach(zone => {
-      zone.addEventListener("click", () => {
-        shotZones.forEach(z => z.classList.remove("selected"));
-        zone.classList.add("selected");
-        playerShot = parseInt(zone.dataset.index);
-        checkReady();
-      });
-    });
-
-    function checkReady() {
-      confirmBtn.disabled = !(playerPosition !== null && playerShot !== null);
-    }
-
-    confirmBtn.addEventListener("click", () => {
-      confirmBtn.disabled = true;
-      const enemyPosition = Math.floor(Math.random() * 3);
-      const enemyShot = Math.floor(Math.random() * 3);
-
-      posZones.forEach(z => z.classList.remove("hit", "miss"));
-      shotZones.forEach(z => z.classList.remove("hit", "miss"));
-
-      if (playerShot === enemyPosition) {
-        enemyHP--;
-        shotZones[playerShot].classList.add("hit");
-      } else {
-        shotZones[playerShot].classList.add("miss");
-      }
-
-      if (enemyShot === playerPosition) {
-        playerHP--;
-        posZones[playerPosition].classList.add("hit");
-      } else {
-        posZones[playerPosition].classList.add("miss");
-      }
-
-      playerHPText.textContent = playerHP;
-      enemyHPText.textContent = enemyHP;
-      round++;
-      status.textContent = `Раунд ${round} — Ваш ход`;
-
-      posZones.forEach(z => z.classList.remove("selected"));
-      shotZones.forEach(z => z.classList.remove("selected"));
-      playerPosition = null;
-      playerShot = null;
-
-      if (playerHP <= 0 || enemyHP <= 0) {
-        if (playerHP <= 0 && enemyHP <= 0) {
-          status.textContent = "Ничья!";
-        } else if (playerHP <= 0) {
-          status.textContent = "Вы проиграли!";
-        } else {
-          status.textContent = "Вы победили и забрали $1.00!";
-        }
-        confirmBtn.disabled = true;
-      }
-    });
-  </script>
 </body>
 </html>
